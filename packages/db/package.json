@@ -1,0 +1,18 @@
+{
+  "name": "@ai-tools/db",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun src/migrate.ts",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.33.0",
+    "postgres": "^3.4.4",
+    "@types/pg": "^8.11.8"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.24.0"
+  }
+}

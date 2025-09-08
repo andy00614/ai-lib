@@ -11,12 +11,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.13",
-    "@ai-sdk/openai": "^2.0.25",
     "@hono/zod-openapi": "^0.19.8",
     "@wd-ai-tools/logger": "workspace:*",
     "@wd-ai-tools/utils": "workspace:*",
-    "ai": "^5.0.35",
+    "@ai-tools/db": "workspace:*",
+    "@ai-tools/ai": "workspace:*",
     "hono": "^4.8.12",
     "@hono/zod-validator": "^0.7.0",
     "@scalar/hono-api-reference": "^0.9.4",
@@ -25,7 +24,9 @@
     "zod-openapi": "^4.2.4",
     "pino": "^9.7.0",
     "nanoid": "^5.1.5",
-    "jose": "^6.0.11"
+    "jose": "^6.0.11",
+    "drizzle-orm": "^0.33.0",
+    "postgres": "^3.4.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

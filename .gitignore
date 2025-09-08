@@ -27,15 +27,16 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .cache
 *.tsbuildinfo
 
+# next.js
+.next/
+next-env.d.ts
+
+# vercel
+.vercel
+
 # IntelliJ based IDEs
 .idea
 
 # Finder (MacOS) folder config
 .DS_Store
 .turbo/
-logs/
-*.log
-.DS_Store
-node_modules/
-.env
-.env.local

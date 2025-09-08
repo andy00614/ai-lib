@@ -1,7 +1,10 @@
 {
   "name": "wd-ai-tools",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo dev --parallel",
     "build": "turbo build",
@@ -11,7 +14,8 @@
     "typecheck": "turbo typecheck",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo clean",
-    "dev:api": "turbo dev --filter=@wd-ai-tools/api"
+    "dev:api": "turbo dev --filter=@wd-ai-tools/api",
+    "dev:dashboard": "turbo dev --filter=@wd-ai-tools/dashboard"
   },
   "dependencies": {
     "turbo": "^2.5.0",

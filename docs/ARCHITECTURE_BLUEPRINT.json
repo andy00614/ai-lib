@@ -1,0 +1,511 @@
+{
+  "project": {
+    "name": "Midday Architecture Blueprint",
+    "version": "1.0.0",
+    "description": "Core architecture patterns and design principles extracted from Midday project",
+    "domain": "Financial Management SaaS",
+    "architecture_type": "Modern Full-Stack Monorepo with Microservices Components"
+  },
+  
+  "architectural_principles": {
+    "core_principles": [
+      "Type Safety First - End-to-end TypeScript with strict typing",
+      "Separation of Concerns - Clear module boundaries and responsibilities",
+      "Performance by Design - Built-in caching, optimization, and scalability",
+      "Developer Experience - Excellent DX with tooling and automation",
+      "Security by Default - Authentication, authorization, and data protection",
+      "Observable and Maintainable - Logging, monitoring, and clear documentation"
+    ],
+    "design_philosophy": {
+      "modularity": "Highly modular architecture with independent packages",
+      "reusability": "Shared utilities and components across applications",
+      "scalability": "Designed to handle growth in users, data, and features",
+      "maintainability": "Clear code organization and comprehensive testing",
+      "performance": "Optimized for speed with caching and efficient queries"
+    }
+  },
+
+  "technology_stack": {
+    "runtime": {
+      "node": ">=18.0.0",
+      "package_manager": "pnpm",
+      "monorepo_tool": "Turborepo"
+    },
+    "frontend": {
+      "framework": "Next.js 14+ (App Router)",
+      "ui_library": "Custom UI components with Radix UI",
+      "styling": "Tailwind CSS with custom design system",
+      "state_management": "React Context + Server State",
+      "forms": "React Hook Form with Zod validation"
+    },
+    "backend": {
+      "api_framework": "Hono (Lightweight, fast API framework)",
+      "validation": "Zod schemas for runtime type checking",
+      "orm": "Drizzle ORM with type-safe queries",
+      "database": "PostgreSQL with pgvector extension",
+      "caching": "Redis for application-level caching"
+    },
+    "ai_ml": {
+      "llm_provider": "Google Gemini via Vercel AI SDK",
+      "vector_database": "PostgreSQL + pgvector",
+      "embedding_model": "gemini-embedding-001 (768 dimensions)",
+      "ai_tasks": ["classification", "enrichment", "semantic_search", "document_processing"]
+    },
+    "infrastructure": {
+      "deployment": "Fly.io with multi-region setup",
+      "database_architecture": "Primary-Replica with geographic distribution",
+      "background_jobs": "Trigger.dev for reliable job processing",
+      "monitoring": "Built-in logging and performance tracking"
+    },
+    "development": {
+      "type_checking": "TypeScript with strict configuration",
+      "linting": "ESLint with custom rules",
+      "formatting": "Prettier with consistent configuration",
+      "testing": "Comprehensive test coverage strategy",
+      "documentation": "Extensive inline and architectural documentation"
+    }
+  },
+
+  "directory_structure_patterns": {
+    "monorepo_organization": {
+      "apps/": {
+        "description": "Main applications (dashboard, api, website, etc.)",
+        "pattern": "Each app is self-contained with its own dependencies",
+        "structure": {
+          "src/": "Application source code",
+          "public/": "Static assets",
+          "package.json": "App-specific dependencies",
+          "next.config.js": "Framework configuration",
+          "tailwind.config.ts": "Styling configuration"
+        }
+      },
+      "packages/": {
+        "description": "Shared libraries and utilities",
+        "pattern": "Reusable code organized by functionality",
+        "categories": {
+          "core_business": ["db", "supabase", "categories"],
+          "infrastructure": ["jobs", "cache", "encryption"],
+          "ui_components": ["ui", "icons", "design-system"],
+          "utilities": ["utils", "logger", "validation"]
+        }
+      }
+    },
+    "app_internal_structure": {
+      "src/": {
+        "app/": "Next.js App Router structure",
+        "components/": "React components organized by feature",
+        "lib/": "Application-specific utilities",
+        "hooks/": "Custom React hooks",
+        "actions/": "Server actions for form handling",
+        "middleware.ts": "Request/response middleware",
+        "types/": "TypeScript type definitions"
+      }
+    },
+    "package_internal_structure": {
+      "src/": {
+        "index.ts": "Main export file",
+        "types.ts": "Package type definitions",
+        "utils/": "Utility functions",
+        "queries/": "Database query functions (for data packages)",
+        "components/": "React components (for UI packages)"
+      }
+    }
+  },
+
+  "core_modules": {
+    "authentication": {
+      "responsibility": "User authentication and authorization",
+      "key_components": [
+        "Supabase Auth integration",
+        "Multi-factor authentication (MFA)",
+        "OAuth providers (Google, GitHub, Apple)",
+        "Session management with cookies",
+        "Row-level security (RLS) policies"
+      ],
+      "patterns": {
+        "middleware_protection": "Route-level authentication checks",
+        "session_caching": "Optimized session retrieval",
+        "provider_abstraction": "Unified interface for different auth providers"
+      },
+      "files_typically_found": [
+        "middleware.ts",
+        "components/*-sign-in.tsx",
+        "actions/*-auth-action.ts",
+        "lib/auth-utils.ts"
+      ]
+    },
+    "database": {
+      "responsibility": "Data persistence and retrieval",
+      "key_components": [
+        "Drizzle ORM with type safety",
+        "Multi-region read/write separation",
+        "Vector storage with pgvector",
+        "Comprehensive query optimization",
+        "Database migration management"
+      ],
+      "patterns": {
+        "schema_first": "Database schema drives TypeScript types",
+        "query_optimization": "Efficient queries with proper indexing",
+        "caching_strategy": "Multi-layer caching for performance",
+        "connection_pooling": "Optimized connection management"
+      },
+      "files_typically_found": [
+        "schema.ts",
+        "queries/*.ts",
+        "client.ts",
+        "migrations/"
+      ]
+    },
+    "ai_intelligence": {
+      "responsibility": "AI-powered features and automation",
+      "key_components": [
+        "Transaction classification",
+        "Semantic search capabilities",
+        "Data enrichment automation",
+        "Document processing",
+        "Vector similarity matching"
+      ],
+      "patterns": {
+        "embedding_generation": "Convert text to vector representations",
+        "batch_processing": "Efficient handling of large datasets",
+        "model_management": "Cost-effective AI model selection",
+        "caching_optimization": "Cache expensive AI operations"
+      },
+      "files_typically_found": [
+        "embeddings.ts",
+        "tasks/*-embed-*.ts",
+        "tasks/*-enrich-*.ts",
+        "utils/text-preparation.ts"
+      ]
+    },
+    "ui_components": {
+      "responsibility": "User interface and user experience",
+      "key_components": [
+        "Design system with consistent styling",
+        "Accessible components with Radix UI",
+        "Form handling with validation",
+        "Responsive design patterns",
+        "Interactive data visualizations"
+      ],
+      "patterns": {
+        "component_composition": "Build complex UIs from simple components",
+        "variant_system": "Consistent styling with variant patterns",
+        "accessibility_first": "Built-in accessibility features",
+        "performance_optimization": "Optimized rendering and loading"
+      },
+      "files_typically_found": [
+        "components/*.tsx",
+        "ui/*.tsx",
+        "hooks/use-*.ts",
+        "styles/globals.css"
+      ]
+    },
+    "background_jobs": {
+      "responsibility": "Asynchronous task processing",
+      "key_components": [
+        "Reliable job queue with Trigger.dev",
+        "Data synchronization tasks",
+        "AI processing pipelines",
+        "Notification systems",
+        "Cleanup and maintenance jobs"
+      ],
+      "patterns": {
+        "job_chaining": "Sequential job execution",
+        "error_handling": "Comprehensive error recovery",
+        "monitoring": "Job status and performance tracking",
+        "scalability": "Horizontal scaling of job processing"
+      },
+      "files_typically_found": [
+        "tasks/*.ts",
+        "utils/process-batch.ts",
+        "init.ts"
+      ]
+    }
+  },
+
+  "design_patterns": {
+    "architectural_patterns": {
+      "monorepo_with_shared_libraries": {
+        "description": "Multiple applications sharing common packages",
+        "benefits": ["Code reuse", "Consistent dependencies", "Unified tooling"],
+        "implementation": "Turborepo with pnpm workspaces"
+      },
+      "layered_architecture": {
+        "description": "Clear separation between presentation, business, and data layers",
+        "layers": ["UI Components", "Business Logic", "Data Access", "External Services"],
+        "implementation": "Separate packages for each concern"
+      },
+      "event_driven_architecture": {
+        "description": "Asynchronous communication between components",
+        "implementation": "Background jobs and webhook systems",
+        "benefits": ["Scalability", "Resilience", "Decoupling"]
+      }
+    },
+    "code_patterns": {
+      "repository_pattern": {
+        "description": "Abstraction layer for data access",
+        "implementation": "Query functions in packages/db/src/queries/",
+        "benefits": ["Testability", "Flexibility", "Separation of concerns"]
+      },
+      "factory_pattern": {
+        "description": "Object creation abstraction",
+        "implementation": "Client creation functions (createClient, connectDb)",
+        "benefits": ["Configuration management", "Environment-specific setup"]
+      },
+      "strategy_pattern": {
+        "description": "Interchangeable algorithms",
+        "implementation": "Different AI models, authentication providers",
+        "benefits": ["Flexibility", "Easy testing", "Feature flags"]
+      },
+      "observer_pattern": {
+        "description": "Event notification system",
+        "implementation": "React hooks, job completion callbacks",
+        "benefits": ["Loose coupling", "Dynamic behavior"]
+      }
+    }
+  },
+
+  "development_conventions": {
+    "naming_conventions": {
+      "files": {
+        "components": "PascalCase.tsx (e.g., UserProfile.tsx)",
+        "utilities": "kebab-case.ts (e.g., format-currency.ts)",
+        "actions": "*-action.ts (e.g., create-user-action.ts)",
+        "hooks": "use-*.ts (e.g., use-auth.ts)",
+        "types": "types.ts or *.types.ts"
+      },
+      "variables": {
+        "constants": "UPPER_SNAKE_CASE",
+        "functions": "camelCase",
+        "components": "PascalCase",
+        "types": "PascalCase with descriptive suffixes"
+      }
+    },
+    "code_organization": {
+      "imports_order": [
+        "React and Next.js imports",
+        "Third-party library imports",
+        "Internal package imports (@midday/*)",
+        "Relative imports (./)",
+        "Type-only imports (last)"
+      ],
+      "export_patterns": {
+        "named_exports": "Preferred for utilities and components",
+        "default_exports": "Used for pages and main components",
+        "barrel_exports": "index.ts files for package exports"
+      }
+    },
+    "type_safety": {
+      "strict_typescript": "All packages use strict TypeScript configuration",
+      "runtime_validation": "Zod schemas for API boundaries",
+      "database_types": "Generated types from Drizzle schema",
+      "component_props": "Explicit prop types for all components"
+    }
+  },
+
+  "integration_patterns": {
+    "database_integration": {
+      "connection_management": {
+        "pattern": "Factory function creating optimized connections",
+        "geographic_routing": "Region-aware replica selection",
+        "pooling": "Conservative connection pooling for Fly.io VMs"
+      },
+      "query_patterns": {
+        "read_write_separation": "Automatic routing based on operation type",
+        "caching_strategy": "Multi-layer caching (application + database)",
+        "batch_operations": "Efficient bulk operations with transactions"
+      }
+    },
+    "external_services": {
+      "api_clients": {
+        "pattern": "Abstracted client creation with configuration",
+        "error_handling": "Comprehensive error handling and retry logic",
+        "rate_limiting": "Built-in rate limiting and cost optimization"
+      },
+      "authentication_providers": {
+        "pattern": "Unified interface for different OAuth providers",
+        "configuration": "Environment-based provider selection",
+        "fallback": "Graceful degradation when providers are unavailable"
+      }
+    }
+  },
+
+  "performance_optimization": {
+    "caching_strategies": {
+      "application_level": {
+        "react_cache": "Request-level caching for server components",
+        "redis_cache": "Distributed caching for expensive operations",
+        "in_memory_cache": "Hot data caching for frequently accessed items"
+      },
+      "database_level": {
+        "query_optimization": "Proper indexing and query structure",
+        "materialized_views": "Pre-computed expensive aggregations",
+        "connection_reuse": "Efficient connection pooling"
+      }
+    },
+    "code_splitting": {
+      "dynamic_imports": "Lazy loading of heavy components",
+      "page_level_splitting": "Automatic Next.js code splitting",
+      "package_optimization": "Tree-shaking friendly exports"
+    },
+    "asset_optimization": {
+      "image_optimization": "Next.js Image component with optimization",
+      "bundle_analysis": "Regular bundle size monitoring",
+      "cdn_integration": "Static asset delivery via CDN"
+    }
+  },
+
+  "security_patterns": {
+    "authentication_security": {
+      "mfa_enforcement": "Multi-factor authentication for all users",
+      "session_management": "Secure session handling with rotation",
+      "oauth_security": "Proper OAuth flow implementation"
+    },
+    "data_protection": {
+      "row_level_security": "Database-level access control",
+      "input_validation": "Comprehensive input validation with Zod",
+      "output_sanitization": "Safe data rendering in components"
+    },
+    "api_security": {
+      "rate_limiting": "API endpoint protection",
+      "cors_configuration": "Proper cross-origin configuration",
+      "authentication_middleware": "Request authentication verification"
+    }
+  },
+
+  "testing_strategies": {
+    "unit_testing": {
+      "utilities": "Comprehensive utility function testing",
+      "components": "Component behavior and rendering tests",
+      "business_logic": "Core business logic validation"
+    },
+    "integration_testing": {
+      "database_operations": "Query function testing",
+      "api_endpoints": "End-to-end API testing",
+      "authentication_flows": "Complete auth flow testing"
+    },
+    "ai_testing": {
+      "golden_datasets": "Consistent AI model testing with reference data",
+      "embedding_quality": "Vector quality and similarity testing",
+      "model_performance": "AI model accuracy and performance testing"
+    }
+  },
+
+  "deployment_patterns": {
+    "infrastructure": {
+      "multi_region": "Geographic distribution for performance",
+      "database_replication": "Primary-replica setup with failover",
+      "job_processing": "Distributed background job execution"
+    },
+    "ci_cd": {
+      "automated_testing": "Comprehensive test suite execution",
+      "type_checking": "Strict TypeScript validation",
+      "deployment_automation": "Zero-downtime deployment process"
+    }
+  },
+
+  "extension_guidelines": {
+    "adding_new_features": {
+      "step_1": "Define clear interface and types",
+      "step_2": "Create comprehensive tests",
+      "step_3": "Implement with proper error handling",
+      "step_4": "Add monitoring and logging",
+      "step_5": "Document usage and examples"
+    },
+    "creating_new_packages": {
+      "structure": "Follow established package structure",
+      "exports": "Clear and documented public API",
+      "dependencies": "Minimal and well-justified dependencies",
+      "testing": "Comprehensive test coverage",
+      "documentation": "Clear README and API documentation"
+    },
+    "integrating_external_services": {
+      "abstraction": "Create abstraction layer for external dependencies",
+      "configuration": "Environment-based configuration management",
+      "error_handling": "Graceful error handling and fallbacks",
+      "monitoring": "Service health monitoring and alerting"
+    }
+  },
+
+  "decision_rationales": {
+    "technology_choices": {
+      "drizzle_orm": "Type-safe queries with excellent performance and developer experience",
+      "next_js_app_router": "Server-side rendering with modern React patterns",
+      "hono_framework": "Lightweight, fast API framework with excellent TypeScript support",
+      "supabase_auth": "Comprehensive authentication with managed infrastructure",
+      "trigger_dev": "Reliable background job processing with great developer experience"
+    },
+    "architectural_decisions": {
+      "monorepo_structure": "Code sharing and consistency across multiple applications",
+      "read_write_separation": "Performance optimization for global user base",
+      "ai_integration": "Competitive advantage through intelligent automation",
+      "type_safety_emphasis": "Reduced bugs and improved developer productivity"
+    }
+  },
+
+  "common_patterns_for_new_development": {
+    "adding_new_api_endpoint": {
+      "steps": [
+        "Define Zod schema for request/response",
+        "Create database query functions if needed",
+        "Implement route handler with proper error handling",
+        "Add authentication/authorization checks",
+        "Write comprehensive tests",
+        "Update API documentation"
+      ],
+      "files_to_create": [
+        "apps/api/src/routes/{feature}/{endpoint}.ts",
+        "packages/db/src/queries/{feature}.ts (if database access needed)",
+        "apps/api/src/schemas/{feature}.ts (for validation)"
+      ]
+    },
+    "adding_new_ui_component": {
+      "steps": [
+        "Design component API and props interface",
+        "Implement with accessibility in mind",
+        "Add variant support for different use cases",
+        "Create comprehensive tests",
+        "Add to design system documentation",
+        "Export from package index"
+      ],
+      "files_to_create": [
+        "packages/ui/src/components/{component-name}.tsx",
+        "packages/ui/src/components/{component-name}.test.tsx",
+        "Update packages/ui/src/index.ts"
+      ]
+    },
+    "adding_new_background_job": {
+      "steps": [
+        "Define job schema and payload types",
+        "Implement job logic with proper error handling",
+        "Add comprehensive logging and monitoring",
+        "Create job scheduling logic",
+        "Write tests for job execution",
+        "Add job to queue configuration"
+      ],
+      "files_to_create": [
+        "packages/jobs/src/tasks/{category}/{job-name}.ts",
+        "Update packages/jobs/src/index.ts"
+      ]
+    }
+  },
+
+  "maintenance_practices": {
+    "regular_tasks": [
+      "Dependency updates with careful testing",
+      "Performance monitoring and optimization",
+      "Security audit and vulnerability patching",
+      "Database maintenance and optimization",
+      "AI model performance evaluation",
+      "Cost optimization review"
+    ],
+    "monitoring_points": [
+      "API response times and error rates",
+      "Database query performance",
+      "Background job success rates",
+      "AI model accuracy and costs",
+      "User authentication success rates",
+      "Cache hit rates and effectiveness"
+    ]
+  }
+}
