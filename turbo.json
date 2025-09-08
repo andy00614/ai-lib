@@ -1,0 +1,33 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "globalDependencies": ["**/.env"],
+  "ui": "stream",
+  "tasks": {
+    "build": {
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "build/**", ".next/**", "lib/**"],
+      "passThroughEnv": [
+        "OPENAI_API_KEY",
+        "MISTRAL_API_KEY",
+        "GOOGLE_GENERATIVE_AI_API_KEY",
+        "DEEPGRAM_API_KEY",
+        "ELEVENLABS_API_KEY",
+        "POSTGRES_URL",
+        "VECTOR_URL"
+      ]
+    },
+    "dev": {
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "persistent": true,
+      "cache": false
+    },
+    "test": {
+      "cache": false
+    },
+    "lint": {},
+    "typecheck": {
+      "outputs": []
+    }
+  }
+}
