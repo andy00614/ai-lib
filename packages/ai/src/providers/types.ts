@@ -11,7 +11,7 @@ export type ProviderType =
   | 'deepseek';
 
 /**
- * Provider配置接口 - 简化版本
+ * Provider配置接口 - 完整版本
  */
 export interface ProviderConfig {
   /** 提供商类型 */
@@ -20,6 +20,10 @@ export interface ProviderConfig {
   model: string;
   /** API密钥（可选，可从环境变量获取） */
   apiKey?: string;
+  /** 温度参数（可选，控制输出随机性） */
+  temperature?: number;
+  /** 最大token数（可选，控制输出长度） */
+  maxTokens?: number;
 }
 
 /**
