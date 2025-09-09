@@ -6,7 +6,9 @@ import type { LanguageModelV1 } from 'ai';
 export type ProviderType = 
   | 'google' 
   | 'openai' 
-  | 'anthropic';
+  | 'anthropic'
+  | 'grok'
+  | 'deepseek';
 
 /**
  * Provider配置接口 - 简化版本
@@ -41,6 +43,8 @@ export const ENV_KEY_MAP: Record<ProviderType, string> = {
   google: 'GOOGLE_GENERATIVE_AI_API_KEY',
   openai: 'OPENAI_API_KEY', 
   anthropic: 'ANTHROPIC_API_KEY',
+  grok: 'GROK_API_KEY',
+  deepseek: 'DEEPSEEK_API_KEY',
 };
 
 /**

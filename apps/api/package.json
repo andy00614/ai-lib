@@ -15,6 +15,8 @@
     "@wd-ai-tools/logger": "workspace:*",
     "@wd-ai-tools/utils": "workspace:*",
     "@wd-ai-tools/ai": "workspace:*",
+    "@wd-ai-tools/knowledge-generator": "workspace:*",
+    "@wd-ai-tools/types": "workspace:*",
     "hono": "^4.8.12",
     "@hono/zod-validator": "^0.7.0",
     "@scalar/hono-api-reference": "^0.9.4",

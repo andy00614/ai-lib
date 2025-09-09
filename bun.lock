@@ -17,7 +17,9 @@
         "@hono/zod-validator": "^0.7.0",
         "@scalar/hono-api-reference": "^0.9.4",
         "@wd-ai-tools/ai": "workspace:*",
+        "@wd-ai-tools/knowledge-generator": "workspace:*",
         "@wd-ai-tools/logger": "workspace:*",
+        "@wd-ai-tools/types": "workspace:*",
         "@wd-ai-tools/utils": "workspace:*",
         "drizzle-orm": "^0.33.0",
         "hono": "^4.8.12",
@@ -102,6 +104,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@wd-ai-tools/ai": "workspace:*",
+        "@wd-ai-tools/types": "workspace:*",
         "zod": "^3.25.0",
       },
       "devDependencies": {
@@ -122,6 +125,17 @@
     "packages/tsconfig": {
       "name": "@wd-ai-tools/tsconfig",
       "version": "1.0.0",
+    },
+    "packages/types": {
+      "name": "@wd-ai-tools/types",
+      "version": "1.0.0",
+      "dependencies": {
+        "zod": "^3.25.0",
+      },
+      "devDependencies": {
+        "@biomejs/biome": "^1.9.4",
+        "typescript": "^5.4.0",
+      },
     },
     "packages/utils": {
       "name": "@wd-ai-tools/utils",
@@ -501,6 +515,8 @@
     "@wd-ai-tools/logger": ["@wd-ai-tools/logger@workspace:packages/logger"],
 
     "@wd-ai-tools/tsconfig": ["@wd-ai-tools/tsconfig@workspace:packages/tsconfig"],
+
+    "@wd-ai-tools/types": ["@wd-ai-tools/types@workspace:packages/types"],
 
     "@wd-ai-tools/utils": ["@wd-ai-tools/utils@workspace:packages/utils"],
 

@@ -38,20 +38,30 @@ export class ProviderFactory {
    * 创建具体Provider的模型
    */
   private static createProviderModel(config: ProviderConfig, apiKey: string): ModelInstance {
-    // 设置环境变量（AI SDK会自动读取）
-    if (!process.env[ENV_KEY_MAP[config.provider]]) {
-      process.env[ENV_KEY_MAP[config.provider]] = apiKey;
-    }
+    // 优先使用传入的apiKey，设置环境变量（AI SDK会自动读取）
+    process.env[ENV_KEY_MAP[config.provider]] = apiKey;
 
     switch (config.provider) {
       case 'google':
-        return google(config.model);
+        return google(config.model || 'gemini-1.5-flash');
 
       case 'openai':
-        return openai(config.model);
+        return openai(config.model || 'gpt-4o-mini');
 
       case 'anthropic':
-        return anthropic(config.model);
+        return anthropic(config.model || 'claude-3-5-haiku-20241022');
+
+      case 'grok':
+        // Grok通常使用OpenAI兼容接口
+        return openai(config.model || 'grok-beta', {
+          baseURL: 'https://api.x.ai/v1',
+        });
+
+      case 'deepseek':
+        // DeepSeek使用OpenAI兼容接口
+        return openai(config.model || 'deepseek-chat', {
+          baseURL: 'https://api.deepseek.com/v1',
+        });
 
       default:
         throw new Error(`Unsupported provider: ${config.provider}`);

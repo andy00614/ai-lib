@@ -1,0 +1,10 @@
+{
+  "extends": "@wd-ai-tools/tsconfig/base.json",
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"],
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true
+  }
+}

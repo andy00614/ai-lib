@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@wd-ai-tools/ai": "workspace:*",
+    "@wd-ai-tools/types": "workspace:*",
     "zod": "^3.25.0"
   },
   "devDependencies": {

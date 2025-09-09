@@ -38,8 +38,6 @@ export class OutlineGenerator {
     // 生成提示词
     const prompt = this.buildPrompt(validatedRequest);
 
-    console.log(prompt)
-
     if (validatedRequest.stream) {
       return this.generateStream(validatedRequest, prompt);
     } else {
