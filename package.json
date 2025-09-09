@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "examples"
   ],
   "scripts": {
     "dev": "turbo dev --parallel",
@@ -15,7 +16,8 @@
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo clean",
     "dev:api": "turbo dev --filter=@wd-ai-tools/api",
-    "dev:dashboard": "turbo dev --filter=@wd-ai-tools/dashboard"
+    "dev:dashboard": "turbo dev --filter=@wd-ai-tools/dashboard",
+    "create:package": "bun run scripts/create-package.ts"
   },
   "dependencies": {
     "turbo": "^2.5.0",

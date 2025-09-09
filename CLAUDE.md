@@ -293,4 +293,8 @@ export const processTransactionData = schemaTask({
 
 ---
 
+# Rules:
+- every time you write code when you use library, always check context7 mcp for how to use the library and is it new and correct
+
 *This document should be updated as the project evolves. Last updated: [Current Date]*
+

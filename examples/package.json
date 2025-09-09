@@ -1,0 +1,17 @@
+{
+  "name": "@wd-ai-tools/examples",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:outline": "bun run outline-generator-test.ts",
+    "test:all": "bun run outline-generator-test.ts"
+  },
+  "dependencies": {
+    "@wd-ai-tools/knowledge-generator": "workspace:*"
+  },
+  "devDependencies": {
+    "@wd-ai-tools/tsconfig": "workspace:*",
+    "typescript": "^5.0.0"
+  }
+}
