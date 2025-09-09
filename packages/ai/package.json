@@ -9,13 +9,13 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "ai": "^4.1.0",
-    "@ai-sdk/google": "^1.0.0",
-    "@ai-sdk/openai": "^1.0.0",
     "@ai-sdk/anthropic": "^1.0.0",
-    "@ai-sdk/xai": "^1.0.0",
     "@ai-sdk/deepseek": "^1.0.0",
+    "@ai-sdk/google": "^1.0.0",
     "@ai-sdk/groq": "^1.0.0",
+    "@ai-sdk/openai": "^2.0.27",
+    "@ai-sdk/xai": "^1.0.0",
+    "ai": "^5.0.38",
     "zod": "^3.25.0"
   },
   "devDependencies": {

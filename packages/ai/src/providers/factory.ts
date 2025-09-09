@@ -1,5 +1,5 @@
 import { google } from '@ai-sdk/google';
-import { openai } from '@ai-sdk/openai';
+import { openai, createOpenAI } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 
 import type {
@@ -52,16 +52,20 @@ export class ProviderFactory {
         return anthropic(config.model || 'claude-3-5-haiku-20241022');
 
       case 'grok':
-        // Grok通常使用OpenAI兼容接口
-        return openai(config.model || 'grok-beta', {
+        // Grok使用OpenAI兼容接口
+        const grokClient = createOpenAI({
           baseURL: 'https://api.x.ai/v1',
+          apiKey: apiKey,
         });
+        return grokClient(config.model || 'grok-beta');
 
       case 'deepseek':
         // DeepSeek使用OpenAI兼容接口
-        return openai(config.model || 'deepseek-chat', {
+        const deepseekClient = createOpenAI({
           baseURL: 'https://api.deepseek.com/v1',
+          apiKey: apiKey,
         });
+        return deepseekClient(config.model || 'deepseek-chat');
 
       default:
         throw new Error(`Unsupported provider: ${config.provider}`);

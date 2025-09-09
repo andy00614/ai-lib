@@ -1,4 +1,4 @@
-import type { LanguageModelV1 } from 'ai';
+import type { LanguageModel } from 'ai';
 
 /**
  * 支持的AI提供商类型
@@ -48,6 +48,6 @@ export const ENV_KEY_MAP: Record<ProviderType, string> = {
 };
 
 /**
- * 使用AI SDK原生类型
+ * 模型实例类型 - 使用any来避免AI SDK版本兼容性问题
  */
-export type ModelInstance = LanguageModelV1;
+export type ModelInstance = any;
