@@ -18,7 +18,11 @@ app.use("*", secureHeaders());
 
 // CORS configuration with environment-aware origins
 const getAllowedOrigins = () => {
-  const defaultOrigins = ["http://localhost:3000", "http://localhost:3001"];
+  const defaultOrigins = [
+    "http://localhost:3000", 
+    "http://localhost:3001",
+    "http://localhost:8080"  // Add localhost:8080 for debugging
+  ];
   
   if (process.env.ALLOWED_ORIGINS) {
     const envOrigins = process.env.ALLOWED_ORIGINS.split(",").map(origin => origin.trim());
@@ -40,7 +44,25 @@ const getAllowedOrigins = () => {
 const allowedOrigins = getAllowedOrigins();
 
 app.use("*", cors({
-  origin: allowedOrigins,
+  origin: (origin, c) => {
+    // For debugging - log all origin requests
+    logger.info({ origin, allowedOrigins }, 'CORS origin check');
+    
+    // Allow requests with no origin (like Postman, curl)
+    if (!origin) return origin;
+    
+    // Allow if in allowed origins
+    if (allowedOrigins.includes(origin)) return origin;
+    
+    // Temporary: Allow fly.dev subdomains for debugging
+    if (origin.endsWith('.fly.dev')) {
+      logger.warn({ origin }, 'CORS: Allowing .fly.dev domain temporarily');
+      return origin;
+    }
+    
+    logger.error({ origin, allowedOrigins }, 'CORS: Origin blocked');
+    return null;
+  },
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowHeaders: [
     "Authorization",
