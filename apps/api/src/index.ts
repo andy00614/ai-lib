@@ -16,19 +16,61 @@ const app = new OpenAPIHono<Context>();
 
 app.use("*", secureHeaders());
 
+// CORS configuration with environment-aware origins
+const getAllowedOrigins = () => {
+  const defaultOrigins = ["http://localhost:3000", "http://localhost:3001"];
+  
+  if (process.env.ALLOWED_ORIGINS) {
+    const envOrigins = process.env.ALLOWED_ORIGINS.split(",").map(origin => origin.trim());
+    return [...envOrigins, ...defaultOrigins];
+  }
+  
+  // Production defaults if no env var is set
+  if (process.env.NODE_ENV === "production") {
+    return [
+      "https://wd-ai-lib.fly.dev",
+      "https://wd-ai-tool-api.fly.dev", // API itself
+      ...defaultOrigins
+    ];
+  }
+  
+  return defaultOrigins;
+};
+
+const allowedOrigins = getAllowedOrigins();
+
 app.use("*", cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(",") ?? ["http://localhost:3000"],
+  origin: allowedOrigins,
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowHeaders: [
     "Authorization",
     "Content-Type",
     "Accept",
-    "X-Requested-With"
+    "X-Requested-With",
+    "Origin",
+    "X-Request-ID"
   ],
   exposeHeaders: ["Content-Length", "X-Request-ID"],
   credentials: true,
   maxAge: 86400,
 }));
+
+// CORS debugging middleware
+app.use("*", async (c, next) => {
+  const origin = c.req.header("Origin");
+  if (origin) {
+    const isAllowed = allowedOrigins.includes(origin);
+    logger.info({ 
+      origin, 
+      isAllowed, 
+      allowedOrigins,
+      method: c.req.method,
+      path: c.req.path
+    }, 'CORS check');
+  }
+  
+  await next();
+});
 
 app.use("*", async (c, next) => {
   const requestId = nanoid();
@@ -120,6 +162,18 @@ app.get("/health", (c) => {
     timestamp: new Date().toISOString(),
     version: "1.0.0",
     environment: process.env.NODE_ENV || "development"
+  });
+});
+
+// CORS debug endpoint
+app.get("/debug/cors", (c) => {
+  const origin = c.req.header("Origin");
+  return c.json({
+    requestOrigin: origin,
+    allowedOrigins,
+    isOriginAllowed: origin ? allowedOrigins.includes(origin) : true,
+    environment: process.env.NODE_ENV || "development",
+    corsConfigSource: process.env.ALLOWED_ORIGINS ? "environment" : "default"
   });
 });
 
