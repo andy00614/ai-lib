@@ -1,5 +1,5 @@
 {
-  "extends": "@ai-tools/tsconfig/base.json",
+  "extends": "@wd-ai-tools/tsconfig/base.json",
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"],
   "compilerOptions": {
