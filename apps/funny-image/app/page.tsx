@@ -13,7 +13,7 @@ import { useMemo, useState } from "react"
 import SampleImage from "../sample.png"
 
 export default function Home() {
-  const [step, setStep] = useState<1 | 2 | 3>(3)
+  const [step, setStep] = useState<1 | 2 | 3>(1)
   const [question, setQuestion] = useState(
     "为什么恐龙会灭绝？"
   )
@@ -26,13 +26,73 @@ export default function Home() {
     []
   )
 
-  const breakdown = [
-    "恐龙的繁盛时代",
-    "小行星撞击前兆",
-    "撞击瞬间与全球尘埃",
-    "连锁气候变化",
-    "物种灭绝与新生"
-  ]
+  const [breakdown, setBreakdown] = useState<string[]>([])
+  const [loadingBreakdown, setLoadingBreakdown] = useState(false)
+  const [imageSrc, setImageSrc] = useState<string | null>(null)
+  const [loadingImage, setLoadingImage] = useState(false)
+
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003/api"
+
+  async function handleDecompose() {
+    try {
+      setLoadingBreakdown(true)
+      const res = await fetch(`${apiBase}/text-to-image/principle`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: question })
+      })
+      const json = await res.json()
+      const data = json?.data || {}
+      const merged: string[] = [
+        ...(data.mechanism || []),
+        ...(data.cause || []),
+        ...(data.effects || []),
+        ...(data.consequence || []),
+      ]
+      const unique = Array.from(new Set(merged)).filter(Boolean).slice(0, 5)
+      setBreakdown(unique.length ? unique : [
+        "恐龙的繁盛时代",
+        "小行星撞击前兆",
+        "撞击瞬间与全球尘埃",
+        "连锁气候变化",
+        "物种灭绝与新生",
+      ])
+      setStep(2)
+    } catch (e) {
+      console.error(e)
+      setBreakdown([
+        "恐龙的繁盛时代",
+        "小行星撞击前兆",
+        "撞击瞬间与全球尘埃",
+        "连锁气候变化",
+        "物种灭绝与新生",
+      ])
+      setStep(2)
+    } finally {
+      setLoadingBreakdown(false)
+    }
+  }
+
+  async function handleGenerate() {
+    try {
+      setLoadingImage(true)
+      const res = await fetch(`${apiBase}/text-to-image/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: question })
+      })
+      const json = await res.json()
+      const b64 = json?.data?.imageBase64 as string | undefined
+      if (b64) setImageSrc(`data:image/png;base64,${b64}`)
+      setStep(3)
+    } catch (e) {
+      console.error(e)
+      setImageSrc(null)
+      setStep(3)
+    } finally {
+      setLoadingImage(false)
+    }
+  }
 
   return (
     <div className="min-h-dvh bg-muted/20">
@@ -81,7 +141,9 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Input placeholder="可选：指定插画风格，例如 扁平可爱" />
-                  <Button onClick={() => setStep(2)}>开始分解</Button>
+                  <Button onClick={handleDecompose} disabled={loadingBreakdown}>
+                    {loadingBreakdown ? "分析中..." : "开始分解"}
+                  </Button>
                 </div>
               </div>
             )}
@@ -103,7 +165,9 @@ export default function Home() {
                 </ol>
                 <div className="flex items-center justify-between">
                   <Button variant="ghost" onClick={() => setStep(1)}>上一步</Button>
-                  <Button onClick={() => setStep(3)}>生成插图</Button>
+                  <Button onClick={handleGenerate} disabled={loadingImage}>
+                    {loadingImage ? "生成中..." : "生成插图"}
+                  </Button>
                 </div>
               </div>
             )}
@@ -116,7 +180,7 @@ export default function Home() {
                   </div>
                   <div className="rounded-xl border bg-background p-3">
                     <Image
-                      src={SampleImage}
+                      src={imageSrc || SampleImage}
                       alt="生成的插图预览"
                       width={1024}
                       height={768}
@@ -146,8 +210,21 @@ export default function Home() {
                       ))}
                     </div>
                     <div className="flex gap-2 pt-1">
-                      <Button variant="secondary"><RefreshCcw className="mr-1 size-4"/>重新生成</Button>
-                      <Button variant="outline"><Download className="mr-1 size-4"/>下载图片</Button>
+                      <Button variant="secondary" onClick={handleGenerate} disabled={loadingImage}>
+                        <RefreshCcw className="mr-1 size-4"/>{loadingImage ? "生成中..." : "重新生成"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          if (!imageSrc) return
+                          const a = document.createElement('a')
+                          a.href = imageSrc
+                          a.download = `illustration-${Date.now()}.png`
+                          a.click()
+                        }}
+                      >
+                        <Download className="mr-1 size-4"/>下载图片
+                      </Button>
                       <Button variant="outline"><PackageOpen className="mr-1 size-4"/>打包下载</Button>
                     </div>
                   </div>

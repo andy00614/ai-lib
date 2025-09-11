@@ -1,9 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 import * as fs from "node:fs";
 
-export async function generatePicture(imagePrompt: string) {
+export async function generatePicture(imagePrompt: string, _apiKey?: string) {
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+    const apiKey = _apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    const ai = new GoogleGenAI({ apiKey });
 
     const prompt = imagePrompt;
 

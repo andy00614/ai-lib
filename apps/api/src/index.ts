@@ -1,4 +1,9 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
+// Load env from both workspace root and local .env to ensure dev works in monorepo
+import * as path from "node:path";
+import dotenv from "dotenv";
+dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";

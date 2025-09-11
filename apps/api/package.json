@@ -16,6 +16,7 @@
     "@wd-ai-tools/utils": "workspace:*",
     "@wd-ai-tools/ai": "workspace:*",
     "@wd-ai-tools/knowledge-generator": "workspace:*",
+    "@wd-ai-tools/text-to-image": "workspace:*",
     "@wd-ai-tools/types": "workspace:*",
     "@ai-tools/db": "workspace:*",
     "hono": "^4.8.12",
@@ -28,7 +29,8 @@
     "nanoid": "^5.1.5",
     "jose": "^6.0.11",
     "drizzle-orm": "^0.33.0",
-    "postgres": "^3.4.4"
+    "postgres": "^3.4.4",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
