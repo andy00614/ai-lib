@@ -195,19 +195,19 @@ export default function Home() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4 max-w-6xl">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">
+        <header className="text-center mb-4">
+          <h1 className="text-2xl font-bold mb-2">
             AI 插图生成器
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             将复杂概念分解为易懂的步骤，并生成精美的教学插图
           </p>
-        </div>
+        </header>
 
         {/* Progress Stepper */}
-        <div className="mb-8">
+        <div className="mb-4">
           <Stepper
             steps={steps.map(s => ({
               id: s.id,
@@ -218,22 +218,22 @@ export default function Home() {
           />
         </div>
 
-        <div className="max-w-4xl mx-auto">
+        <main>
           {/* Step 1: Input */}
           {step === 1 && (
             <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl flex items-center justify-center gap-2">
-                  <Brain className="size-6" />
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-lg font-semibold flex items-center justify-center gap-2 mb-2">
+                  <Brain className="size-5" />
                   输入你想了解的问题
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm">
                   输入任何你好奇的科学或知识问题，AI 将帮你深入解析
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 px-6 pb-6">
                 <div className="space-y-2">
-                  <Label htmlFor="question" className="text-base font-medium">
+                  <Label htmlFor="question" className="text-sm font-medium">
                     问题描述
                   </Label>
                   <Textarea
@@ -241,11 +241,11 @@ export default function Home() {
                     placeholder="例如：为什么恐龙会灭绝？机器学习是如何工作的？"
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
-                    className="min-h-[100px] text-lg"
+                    className="min-h-[80px] text-sm resize-none"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="style" className="text-base font-medium">
+                  <Label htmlFor="style" className="text-sm font-medium">
                     插图风格（可选）
                   </Label>
                   <Input
@@ -253,22 +253,22 @@ export default function Home() {
                     placeholder="例如：扁平设计、卡通风格、科技感、手绘风格..."
                     value={style}
                     onChange={(e) => setStyle(e.target.value)}
-                    className="text-lg"
+                    className="text-sm h-9"
                   />
                 </div>
                 <Button 
                   onClick={handleDecomposeStream} 
                   disabled={loadingBreakdown || !question.trim()}
-                  className="w-full py-6 text-lg"
+                  className="w-full h-9 text-sm"
                 >
                   {loadingBreakdown ? (
                     <>
-                      <Sparkles className="mr-2 size-5 animate-spin" />
+                      <Sparkles className="mr-2 size-4 animate-spin" />
                       AI 正在分析中...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="mr-2 size-5" />
+                      <Sparkles className="mr-2 size-4" />
                       开始 AI 分析
                     </>
                   )}
@@ -279,51 +279,51 @@ export default function Home() {
 
           {/* Step 2: Breakdown */}
           {step === 2 && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-2xl flex items-center gap-2">
-                      <Sparkles className="size-6" />
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                      <Sparkles className="size-5" />
                       问题分解分析
                     </CardTitle>
-                    <Button variant="ghost" onClick={() => setStep(1)}>
-                      <ArrowLeft className="mr-2 size-4" />
+                    <Button variant="ghost" size="sm" onClick={() => setStep(1)}>
+                      <ArrowLeft className="mr-1 size-3" />
                       返回编辑
                     </Button>
                   </div>
-                  <CardDescription>
-                    AI 正在分析：{question}
+                  <CardDescription className="text-sm">
+                    AI 正在分析：<span className="font-medium">{question}</span>
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 px-6 pb-6">
                   {/* Summary */}
                   {principle.summary ? (
-                    <div className="p-4 bg-muted rounded-lg border">
-                      <h3 className="font-semibold mb-2">核心概述</h3>
-                      <p>{principle.summary}</p>
+                    <div className="p-3 bg-muted rounded-lg border">
+                      <h3 className="text-sm font-semibold mb-2">核心概述</h3>
+                      <p className="text-sm">{principle.summary}</p>
                     </div>
                   ) : loadingBreakdown ? (
-                    <div className="p-4 bg-muted rounded-lg border">
-                      <h3 className="font-semibold mb-2">核心概述</h3>
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-3/4 mt-2" />
+                    <div className="p-3 bg-muted rounded-lg border">
+                      <h3 className="text-sm font-semibold mb-2">核心概述</h3>
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-3/4 mt-2" />
                     </div>
                   ) : null}
 
                   {/* Breakdown Items */}
                   <div className="space-y-3">
-                    <h3 className="font-semibold text-lg">关键要点分解</h3>
-                    <div className="grid gap-3">
+                    <h3 className="text-sm font-semibold">关键要点分解</h3>
+                    <div className="grid gap-2">
                       {getAllBreakdownItems().map((item, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border transition-all duration-300 hover:shadow-md"
+                          className="flex items-start gap-2 p-2 bg-muted/50 rounded-lg border"
                         >
-                          <Badge variant="secondary" className="text-sm min-w-8 justify-center">
+                          <Badge variant="secondary" className="text-xs min-w-6 h-6 flex items-center justify-center">
                             {index + 1}
                           </Badge>
-                          <span>{item}</span>
+                          <span className="text-sm flex-1">{item}</span>
                         </div>
                       ))}
                       
@@ -331,17 +331,17 @@ export default function Home() {
                       {loadingBreakdown && (
                         <>                     
                           {Array.from({ length: Math.max(1, 5 - getAllBreakdownItems().length) }).map((_, index) => (
-                            <div key={`skeleton-${index}`} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border animate-pulse">
-                              <Badge variant="outline" className="text-sm min-w-8 justify-center">
+                            <div key={`skeleton-${index}`} className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg border animate-pulse">
+                              <Badge variant="outline" className="text-xs min-w-6 h-6 flex items-center justify-center">
                                 <Sparkles className="size-3 animate-spin" />
                               </Badge>
-                              <Skeleton className="h-4 flex-1" />
+                              <Skeleton className="h-3 flex-1" />
                             </div>
                           ))}
                           {getAllBreakdownItems().length === 0 && (
                             <div className="text-center py-4 text-muted-foreground">
                               <Sparkles className="size-5 animate-spin mx-auto mb-2" />
-                              <p>AI 正在深度分析你的问题...</p>
+                              <p className="text-sm">AI 正在深度分析你的问题...</p>
                             </div>
                           )}
                         </>
@@ -351,31 +351,31 @@ export default function Home() {
 
                   {/* Analogies */}
                   {principle.analogies && principle.analogies.length > 0 && (
-                    <div className="p-4 bg-muted rounded-lg border">
-                      <h3 className="font-semibold mb-2">生动比喻</h3>
+                    <div className="p-3 bg-muted rounded-lg border">
+                      <h3 className="text-sm font-semibold mb-2">生动比喻</h3>
                       <ul className="space-y-1">
                         {principle.analogies.map((analogy, index) => (
-                          <li key={index}>• {analogy}</li>
+                          <li key={index} className="text-sm">• {analogy}</li>
                         ))}
                       </ul>
                     </div>
                   )}
 
                   {/* Action Button */}
-                  <div className="pt-4">
+                  <div className="pt-2">
                     <Button 
                       onClick={handleGenerate} 
                       disabled={loadingImage || (!streamComplete && loadingBreakdown)}
-                      className="w-full py-6 text-lg"
+                      className="w-full h-9 text-sm"
                     >
                       {loadingImage ? (
                         <>
-                          <ImageIcon className="mr-2 size-5 animate-pulse" />
+                          <ImageIcon className="mr-2 size-4 animate-pulse" />
                           AI 正在创作插图...
                         </>
                       ) : (
                         <>
-                          <ImageIcon className="mr-2 size-5" />
+                          <ImageIcon className="mr-2 size-4" />
                           生成教学插图
                         </>
                       )}
@@ -388,7 +388,7 @@ export default function Home() {
 
           {/* Step 3: Generated Image */}
           {step === 3 && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -407,7 +407,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Image Display */}
-                  <div className="relative aspect-square max-w-2xl mx-auto">
+                  <div className="relative aspect-video max-w-xl mx-auto">
                     <div className="rounded-xl border bg-background p-4">
                       {loadingImage && !imageSrc ? (
                         <div className="aspect-square w-full rounded-lg bg-muted/50 flex flex-col items-center justify-center gap-4">
@@ -502,7 +502,7 @@ export default function Home() {
               </Card>
             </div>
           )}
-        </div>
+        </main>
       </div>
     </div>
   )
