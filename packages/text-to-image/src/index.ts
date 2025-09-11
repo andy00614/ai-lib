@@ -2,6 +2,7 @@
 export { generatePicture } from "./generate-picture.js"
 export {
   generatePrincipleSchema,
+  generatePrincipleSchemaStream,
   PrincipleSchema,
   type Principle,
 } from "./generate-knowledge.js"

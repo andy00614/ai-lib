@@ -1,6 +1,6 @@
 "use client"
 import Image from "next/image"
-import { ArrowLeft, Download, RefreshCcw, PackageOpen } from "lucide-react"
+import { ArrowLeft, Download, RefreshCcw, PackageOpen, Sparkles, Brain, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -8,34 +8,126 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Stepper } from "@/components/stepper"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useRef } from "react"
 import SampleImage from "../sample.png"
+
+type PartialPrinciple = {
+  topic?: string;
+  summary?: string;
+  mechanism?: string[];
+  cause?: string[];
+  effects?: string[];
+  consequence?: string[];
+  analogies?: string[];
+  classroomSafe?: boolean;
+}
 
 export default function Home() {
   const [step, setStep] = useState<1 | 2 | 3>(1)
-  const [question, setQuestion] = useState(
-    "为什么恐龙会灭绝？"
-  )
+  const [question, setQuestion] = useState("为什么恐龙会灭绝？")
+  const [style, setStyle] = useState("")
+  
+  // Stream states
+  const [principle, setPrinciple] = useState<PartialPrinciple>({})
+  const [loadingBreakdown, setLoadingBreakdown] = useState(false)
+  const [streamComplete, setStreamComplete] = useState(false)
+  
+  // Image states
+  const [imageSrc, setImageSrc] = useState<string | null>(null)
+  const [loadingImage, setLoadingImage] = useState(false)
+  
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003/api"
+  const abortControllerRef = useRef<AbortController | null>(null)
+
   const steps = useMemo(
     () => [
-      { id: 1, label: "输入问题" },
-      { id: 2, label: "分解问题" },
-      { id: 3, label: "生成插图" },
+      { id: 1, label: "输入问题", icon: Brain },
+      { id: 2, label: "分解问题", icon: Sparkles },
+      { id: 3, label: "生成插图", icon: ImageIcon },
     ],
     []
   )
 
-  const [breakdown, setBreakdown] = useState<string[]>([])
-  const [loadingBreakdown, setLoadingBreakdown] = useState(false)
-  const [imageSrc, setImageSrc] = useState<string | null>(null)
-  const [loadingImage, setLoadingImage] = useState(false)
-
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003/api"
-
-  async function handleDecompose() {
+  async function handleDecomposeStream() {
     try {
+      // Immediately show step 2 with loading state
       setLoadingBreakdown(true)
+      setStreamComplete(false)
+      setPrinciple({})
+      setStep(2)
+      
+      // Cancel any existing request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+      abortControllerRef.current = new AbortController()
+
+      const response = await fetch(`${apiBase}/text-to-image/principle/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: question }),
+        signal: abortControllerRef.current.signal
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+
+      if (!reader) {
+        throw new Error("No reader available")
+      }
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n').filter(line => line.trim())
+
+        for (const line of lines) {
+          try {
+            const partialData = JSON.parse(line)
+            
+            // Handle initial status message
+            if (partialData.status === "starting") {
+              console.log('Stream started for topic:', partialData.topic)
+              continue
+            }
+            
+            // Handle principle data
+            if (typeof partialData === 'object' && partialData !== null) {
+              setPrinciple(prev => ({
+                ...prev,
+                ...partialData
+              }))
+            }
+          } catch (e) {
+            console.warn('Failed to parse chunk:', line)
+          }
+        }
+      }
+
+      setStreamComplete(true)
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Stream aborted')
+        return
+      }
+      console.error('Stream error:', error)
+      // Fallback to non-streaming
+      await handleDecomposeFallback()
+    } finally {
+      setLoadingBreakdown(false)
+    }
+  }
+
+  async function handleDecomposeFallback() {
+    try {
       const res = await fetch(`${apiBase}/text-to-image/principle`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,203 +135,374 @@ export default function Home() {
       })
       const json = await res.json()
       const data = json?.data || {}
-      const merged: string[] = [
-        ...(data.mechanism || []),
-        ...(data.cause || []),
-        ...(data.effects || []),
-        ...(data.consequence || []),
-      ]
-      const unique = Array.from(new Set(merged)).filter(Boolean).slice(0, 5)
-      setBreakdown(unique.length ? unique : [
-        "恐龙的繁盛时代",
-        "小行星撞击前兆",
-        "撞击瞬间与全球尘埃",
-        "连锁气候变化",
-        "物种灭绝与新生",
-      ])
-      setStep(2)
+      setPrinciple(data)
+      setStreamComplete(true)
     } catch (e) {
       console.error(e)
-      setBreakdown([
-        "恐龙的繁盛时代",
-        "小行星撞击前兆",
-        "撞击瞬间与全球尘埃",
-        "连锁气候变化",
-        "物种灭绝与新生",
-      ])
-      setStep(2)
-    } finally {
-      setLoadingBreakdown(false)
+      setPrinciple({
+        topic: question,
+        summary: "由于多种复杂的环境因素导致恐龙这一古老物种的灭绝",
+        mechanism: ["小行星撞击地球", "火山活动加剧", "气候急剧变化"],
+        cause: ["地质活动", "天体撞击", "环境恶化"],
+        effects: ["生态系统崩溃", "食物链断裂", "栖息地消失"],
+        consequence: ["物种大灭绝", "哺乳动物崛起", "生态重建"],
+        classroomSafe: true
+      })
+      setStreamComplete(true)
     }
   }
 
   async function handleGenerate() {
     try {
+      // Immediately show step 3 with loading state
       setLoadingImage(true)
-      const res = await fetch(`${apiBase}/text-to-image/generate`, {
+      setImageSrc(null) // Clear previous image
+      setStep(3)
+
+      const response = await fetch(`${apiBase}/text-to-image/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: question })
+        body: JSON.stringify({ 
+          topic: question,
+          style: style || undefined
+        })
       })
-      const json = await res.json()
-      const b64 = json?.data?.imageBase64 as string | undefined
-      if (b64) setImageSrc(`data:image/png;base64,${b64}`)
-      setStep(3)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      // Since the API now returns binary PNG data
+      const blob = await response.blob()
+      const imageUrl = URL.createObjectURL(blob)
+      setImageSrc(imageUrl)
     } catch (e) {
       console.error(e)
       setImageSrc(null)
-      setStep(3)
     } finally {
       setLoadingImage(false)
     }
   }
 
+  const getAllBreakdownItems = () => {
+    const items: string[] = []
+    if (principle.mechanism) items.push(...principle.mechanism)
+    if (principle.cause) items.push(...principle.cause)
+    if (principle.effects) items.push(...principle.effects)
+    if (principle.consequence) items.push(...principle.consequence)
+    return items.slice(0, 5)
+  }
+
   return (
-    <div className="min-h-dvh bg-muted/20">
-      <div className="mx-auto max-w-5xl px-6 py-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Button variant="ghost" size="sm" onClick={() => setStep((s) => (s > 1 ? ((s - 1) as any) : s))}>
-              <ArrowLeft className="mr-1 size-4" />
-              返回
-            </Button>
-            <div>
-              <div className="text-lg font-semibold text-foreground">你的专属插画</div>
-              <div className="text-xs text-muted-foreground">基于 AI 分析生成的教育插画</div>
-            </div>
-          </div>
-
-          <Button variant="link" onClick={() => setStep(2)} className="text-primary">
-            返回修改
-          </Button>
+    <div className="min-h-dvh bg-background">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-4">
+            AI 插图生成器
+          </h1>
+          <p className="text-lg text-muted-foreground">
+            将复杂概念分解为易懂的步骤，并生成精美的教学插图
+          </p>
         </div>
 
-        <div className="mt-6">
-          <Stepper steps={steps} current={step} />
+        {/* Progress Stepper */}
+        <div className="mb-8">
+          <Stepper
+            steps={steps.map(s => ({
+              id: s.id,
+              label: s.label,
+              icon: s.icon
+            }))}
+            currentStep={step}
+          />
         </div>
 
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="text-base">问题</CardTitle>
-            <CardDescription>
-              {step === 1 && "请输入你想讲解或生成插图的问题。"}
-              {step === 2 && "已根据你的问题进行要点拆分，可在此调整。"}
-              {step === 3 && "下面展示根据问题自动生成的插图与步骤。"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {step === 1 && (
-              <div className="space-y-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="question">输入你的问题</Label>
+        <div className="max-w-4xl mx-auto">
+          {/* Step 1: Input */}
+          {step === 1 && (
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl flex items-center justify-center gap-2">
+                  <Brain className="size-6" />
+                  输入你想了解的问题
+                </CardTitle>
+                <CardDescription>
+                  输入任何你好奇的科学或知识问题，AI 将帮你深入解析
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="question" className="text-base font-medium">
+                    问题描述
+                  </Label>
                   <Textarea
                     id="question"
-                    placeholder="例如：为什么恐龙会灭绝？"
+                    placeholder="例如：为什么恐龙会灭绝？机器学习是如何工作的？"
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
+                    className="min-h-[100px] text-lg"
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Input placeholder="可选：指定插画风格，例如 扁平可爱" />
-                  <Button onClick={handleDecompose} disabled={loadingBreakdown}>
-                    {loadingBreakdown ? "分析中..." : "开始分解"}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="space-y-6">
-                <div className="text-sm text-muted-foreground">
-                  基于问题“{question}”，系统建议以下 5 个讲解步骤：
-                </div>
-                <ol className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  {breakdown.map((b, i) => (
-                    <li key={b} className="rounded-lg border bg-card p-3">
-                      <div className="text-sm font-medium">{i + 1}. {b}</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        点击后可微调提示词与内容。
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-                <div className="flex items-center justify-between">
-                  <Button variant="ghost" onClick={() => setStep(1)}>上一步</Button>
-                  <Button onClick={handleGenerate} disabled={loadingImage}>
-                    {loadingImage ? "生成中..." : "生成插图"}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="space-y-6">
                 <div className="space-y-2">
-                  <div className="text-center text-2xl font-bold tracking-tight">
-                    WHY DID THE DINOSAURS DIE OUT?
-                  </div>
-                  <div className="rounded-xl border bg-background p-3">
-                    <Image
-                      src={imageSrc || SampleImage}
-                      alt="生成的插图预览"
-                      width={1024}
-                      height={768}
-                      className="mx-auto h-auto w-full rounded-lg"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="size-2 rounded-full bg-emerald-500" />
-                    封面图 - 由 Gemini AI 生成
-                  </div>
+                  <Label htmlFor="style" className="text-base font-medium">
+                    插图风格（可选）
+                  </Label>
+                  <Input
+                    id="style"
+                    placeholder="例如：扁平设计、卡通风格、科技感、手绘风格..."
+                    value={style}
+                    onChange={(e) => setStyle(e.target.value)}
+                    className="text-lg"
+                  />
                 </div>
+                <Button 
+                  onClick={handleDecomposeStream} 
+                  disabled={loadingBreakdown || !question.trim()}
+                  className="w-full py-6 text-lg"
+                >
+                  {loadingBreakdown ? (
+                    <>
+                      <Sparkles className="mr-2 size-5 animate-spin" />
+                      AI 正在分析中...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 size-5" />
+                      开始 AI 分析
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
-                <Separator />
-
-                <div className="grid gap-6 md:grid-cols-5">
-                  <div className="md:col-span-3 space-y-4">
-                    <div className="flex items-center gap-2">
-                      <div className="text-sm font-medium">分步骤生成（5 个步骤）</div>
-                      <Badge variant="success">已启用风格一致性</Badge>
+          {/* Step 2: Breakdown */}
+          {step === 2 && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl flex items-center gap-2">
+                      <Sparkles className="size-6" />
+                      问题分解分析
+                    </CardTitle>
+                    <Button variant="ghost" onClick={() => setStep(1)}>
+                      <ArrowLeft className="mr-2 size-4" />
+                      返回编辑
+                    </Button>
+                  </div>
+                  <CardDescription>
+                    AI 正在分析：{question}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Summary */}
+                  {principle.summary ? (
+                    <div className="p-4 bg-muted rounded-lg border">
+                      <h3 className="font-semibold mb-2">核心概述</h3>
+                      <p>{principle.summary}</p>
                     </div>
-                    <div className="grid gap-2">
-                      {breakdown.map((b, i) => (
-                        <Button key={b} variant={i === 0 ? "secondary" : "outline" as any} className="justify-start">
-                          <span className="mr-2 rounded-full bg-primary text-primary-foreground size-5 text-[11px] inline-flex items-center justify-center">{i + 1}</span>
-                          {b}
-                        </Button>
+                  ) : loadingBreakdown ? (
+                    <div className="p-4 bg-muted rounded-lg border">
+                      <h3 className="font-semibold mb-2">核心概述</h3>
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4 mt-2" />
+                    </div>
+                  ) : null}
+
+                  {/* Breakdown Items */}
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-lg">关键要点分解</h3>
+                    <div className="grid gap-3">
+                      {getAllBreakdownItems().map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border transition-all duration-300 hover:shadow-md"
+                        >
+                          <Badge variant="secondary" className="text-sm min-w-8 justify-center">
+                            {index + 1}
+                          </Badge>
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                      
+                      {/* Loading skeletons for streaming */}
+                      {loadingBreakdown && (
+                        <>                     
+                          {Array.from({ length: Math.max(1, 5 - getAllBreakdownItems().length) }).map((_, index) => (
+                            <div key={`skeleton-${index}`} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border animate-pulse">
+                              <Badge variant="outline" className="text-sm min-w-8 justify-center">
+                                <Sparkles className="size-3 animate-spin" />
+                              </Badge>
+                              <Skeleton className="h-4 flex-1" />
+                            </div>
+                          ))}
+                          {getAllBreakdownItems().length === 0 && (
+                            <div className="text-center py-4 text-muted-foreground">
+                              <Sparkles className="size-5 animate-spin mx-auto mb-2" />
+                              <p>AI 正在深度分析你的问题...</p>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Analogies */}
+                  {principle.analogies && principle.analogies.length > 0 && (
+                    <div className="p-4 bg-muted rounded-lg border">
+                      <h3 className="font-semibold mb-2">生动比喻</h3>
+                      <ul className="space-y-1">
+                        {principle.analogies.map((analogy, index) => (
+                          <li key={index}>• {analogy}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <div className="pt-4">
+                    <Button 
+                      onClick={handleGenerate} 
+                      disabled={loadingImage || (!streamComplete && loadingBreakdown)}
+                      className="w-full py-6 text-lg"
+                    >
+                      {loadingImage ? (
+                        <>
+                          <ImageIcon className="mr-2 size-5 animate-pulse" />
+                          AI 正在创作插图...
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon className="mr-2 size-5" />
+                          生成教学插图
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Step 3: Generated Image */}
+          {step === 3 && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl flex items-center gap-2">
+                      <ImageIcon className="size-6" />
+                      生成的教学插图
+                    </CardTitle>
+                    <Button variant="ghost" onClick={() => setStep(2)}>
+                      <ArrowLeft className="mr-2 size-4" />
+                      返回分解
+                    </Button>
+                  </div>
+                  <CardDescription>
+                    基于问题分析生成的可视化插图
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Image Display */}
+                  <div className="relative aspect-square max-w-2xl mx-auto">
+                    <div className="rounded-xl border bg-background p-4">
+                      {loadingImage && !imageSrc ? (
+                        <div className="aspect-square w-full rounded-lg bg-muted/50 flex flex-col items-center justify-center gap-4">
+                          <div className="space-y-3 text-center">
+                            <ImageIcon className="size-12 animate-pulse mx-auto text-muted-foreground" />
+                            <div className="space-y-2">
+                              <p className="text-lg font-medium">AI 正在创作插图</p>
+                              <p className="text-sm text-muted-foreground">
+                                基于你的问题"{question}"生成精美插图...
+                              </p>
+                            </div>
+                            <div className="flex items-center justify-center gap-1">
+                              <div className="size-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                              <div className="size-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                              <div className="size-2 bg-primary rounded-full animate-bounce"></div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <Image
+                          src={imageSrc || SampleImage}
+                          alt="Generated illustration"
+                          width={1024}
+                          height={1024}
+                          className="w-full h-auto rounded-lg"
+                          style={{ objectFit: 'cover' }}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Breakdown Summary */}
+                  <div className="bg-muted rounded-lg p-4">
+                    <h3 className="font-semibold mb-3">插图说明要点</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {getAllBreakdownItems().map((item, index) => (
+                        <div key={index} className="flex items-center gap-2 text-sm">
+                          <Badge variant="outline" className="text-xs min-w-6 justify-center">
+                            {index + 1}
+                          </Badge>
+                          <span>{item}</span>
+                        </div>
                       ))}
                     </div>
-                    <div className="flex gap-2 pt-1">
-                      <Button variant="secondary" onClick={handleGenerate} disabled={loadingImage}>
-                        <RefreshCcw className="mr-1 size-4"/>{loadingImage ? "生成中..." : "重新生成"}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          if (!imageSrc) return
-                          const a = document.createElement('a')
-                          a.href = imageSrc
-                          a.download = `illustration-${Date.now()}.png`
-                          a.click()
-                        }}
-                      >
-                        <Download className="mr-1 size-4"/>下载图片
-                      </Button>
-                      <Button variant="outline"><PackageOpen className="mr-1 size-4"/>打包下载</Button>
-                    </div>
                   </div>
 
-                  <div className="md:col-span-2 space-y-3">
-                    <Button className="w-full">生成所有步骤图片</Button>
-                    <Button variant="secondary" className="w-full">生成此步骤</Button>
-                    <Separator />
-                    <Button variant="outline" className="w-full">创建新插画</Button>
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-3">
+                    <Button 
+                      variant="secondary" 
+                      onClick={handleGenerate} 
+                      disabled={loadingImage}
+                      className="flex-1 min-w-0"
+                    >
+                      {loadingImage ? (
+                        <>
+                          <Sparkles className="mr-2 size-4 animate-spin"/>
+                          创作中...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCcw className="mr-2 size-4"/>
+                          重新生成
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        if (!imageSrc) return
+                        const a = document.createElement('a')
+                        a.href = imageSrc
+                        a.download = `illustration-${Date.now()}.png`
+                        a.click()
+                      }}
+                      disabled={!imageSrc || loadingImage}
+                      className="flex-1 min-w-0"
+                    >
+                      <Download className="mr-2 size-4"/>
+                      下载图片
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="flex-1 min-w-0"
+                      disabled={loadingImage}
+                    >
+                      <PackageOpen className="mr-2 size-4"/>
+                      打包下载
+                    </Button>
                   </div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

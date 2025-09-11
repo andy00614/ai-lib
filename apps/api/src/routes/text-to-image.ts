@@ -10,7 +10,7 @@ import {
   type GenerateImageRequest,
 } from "../schemas/text-to-image.js";
 import { logger } from "../utils/logger.js";
-import { generatePrincipleSchema, generatePicture, buildPrompt } from "@wd-ai-tools/text-to-image";
+import { generatePrincipleSchema, generatePrincipleSchemaStream, generatePicture, buildPrompt } from "@wd-ai-tools/text-to-image";
 
 const router = new OpenAPIHono<Context>();
 
@@ -48,6 +48,81 @@ router.openapi(principleRoute, async (c): Promise<any> => {
   } catch (err) {
     logger.error({ err, requestId }, "principle generation failed");
     return c.json({ error: "Failed to generate principle", requestId }, 500);
+  }
+});
+
+const principleStreamRoute = createRoute({
+  method: "post",
+  path: "/principle/stream",
+  tags: ["TextToImage"],
+  summary: "Generate principle breakdown for a topic (streaming)",
+  request: {
+    body: {
+      content: {
+        "application/json": { schema: principleRequestSchema },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Streaming principle data",
+      content: {
+        "text/plain": {
+          schema: {
+            type: "string",
+          },
+        },
+      },
+      headers: {
+        "X-Request-ID": {
+          description: "Request ID for tracking",
+          schema: { type: "string" },
+        },
+      },
+    },
+    500: { description: "Internal error", content: { "application/json": { schema: ErrorSchema } } },
+  },
+});
+
+router.openapi(principleStreamRoute, async (c): Promise<any> => {
+  const requestId = c.get("requestId");
+  try {
+    const body = await c.req.json() as PrincipleRequest;
+    
+    // Create a readable stream that initializes the AI stream inside
+    const encoder = new TextEncoder();
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        try {
+          // Send initial status
+          const startChunk = JSON.stringify({ status: "starting", topic: body.topic }) + '\n';
+          controller.enqueue(encoder.encode(startChunk));
+          
+          // Initialize stream inside the readable stream
+          const stream = await generatePrincipleSchemaStream(body.topic);
+          
+          for await (const partialObject of stream.partialObjectStream) {
+            const chunk = JSON.stringify(partialObject) + '\n';
+            controller.enqueue(encoder.encode(chunk));
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      }
+    });
+
+    return new Response(readableStream, {
+      headers: {
+        'Content-Type': 'text/plain',
+        'X-Request-ID': requestId,
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      }
+    });
+  } catch (err) {
+    logger.error({ err, requestId }, "streaming principle generation failed");
+    return c.json({ error: "Failed to generate principle stream", requestId }, 500);
   }
 });
 
