@@ -1,0 +1,23 @@
+{
+  "name": "@wd-ai-tools/text-to-image",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@google/genai": "^1.19.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@wd-ai-tools/tsconfig": "workspace:*",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@wd-ai-tools/ai": ">=0.0.1",
+    "@wd-ai-tools/types": ">=0.0.1"
+  }
+}

@@ -3,8 +3,9 @@
   "private": true,
   "workspaces": [
     "apps/*",
+    "examples",
     "packages/*",
-    "examples"
+    "packages/text-to-image"
   ],
   "scripts": {
     "dev": "turbo dev --parallel",
@@ -25,5 +26,8 @@
     "@biomejs/biome": "^1.9.0",
     "@manypkg/cli": "^0.24.0"
   },
-  "packageManager": "bun@1.2.21"
+  "packageManager": "bun@1.2.21",
+  "devDependencies": {
+    "shadcn": "^3.2.1"
+  }
 }
