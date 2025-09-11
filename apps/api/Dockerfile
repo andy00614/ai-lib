@@ -53,7 +53,7 @@ COPY --from=installer /app/node_modules ./node_modules
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=3003
+ENV PORT=8080
 ENV TZ=UTC
 
 # Create non-root user for security
@@ -66,7 +66,7 @@ RUN mkdir -p /app/apps/api/logs && chown -R appuser:appuser /app
 USER appuser
 
 # Expose the port
-EXPOSE 3003
+EXPOSE 8080
 
 # Change to API directory
 WORKDIR /app/apps/api

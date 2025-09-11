@@ -57,22 +57,71 @@ app.use("*", async (c, next) => {
   }, 'Request completed');
 });
 
+// Dynamic server configuration based on environment
+const getServerConfig = () => {
+  const servers = [];
+  
+  // Development server
+  if (process.env.NODE_ENV === "development") {
+    const port = process.env.PORT || "3003";
+    servers.push({ 
+      url: `http://localhost:${port}`, 
+      description: "Development" 
+    });
+  }
+  
+  // Production server (Fly.io)
+  if (process.env.NODE_ENV === "production" && process.env.FLY_APP_NAME) {
+    servers.push({ 
+      url: `https://${process.env.FLY_APP_NAME}.fly.dev`, 
+      description: "Production (Fly.io)" 
+    });
+  }
+  
+  // Fallback for production without FLY_APP_NAME
+  if (process.env.NODE_ENV === "production" && !process.env.FLY_APP_NAME) {
+    servers.push({ 
+      url: "https://wd-ai-tool-api.fly.dev", 
+      description: "Production" 
+    });
+  }
+  
+  // Always include a generic localhost option for testing
+  if (servers.length === 0) {
+    const port = process.env.PORT || "3003";
+    servers.push({ 
+      url: `http://localhost:${port}`, 
+      description: "Local" 
+    });
+  }
+  
+  return servers;
+};
+
 app.doc("/openapi.json", {
   openapi: "3.1.0",
   info: {
     version: "1.0.0",
     title: "AI Tools API",
-    description: "API documentation",
+    description: "API documentation for AI Tools services",
   },
-  servers: [
-    { url: "http://localhost:3003", description: "Development" },
-  ]
+  servers: getServerConfig()
 });
 
 app.get("/", Scalar({
   url: "/openapi.json",
   theme: "saturn"
 }));
+
+// Health check endpoint for Fly.io
+app.get("/health", (c) => {
+  return c.json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    version: "1.0.0",
+    environment: process.env.NODE_ENV || "development"
+  });
+});
 
 app.route("/api", routers);
 
