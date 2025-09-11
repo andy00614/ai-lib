@@ -1,4 +1,4 @@
-app = 'wd-ai-tool-api'
+app = 'wd-ai-lib'
 primary_region = 'sin'
 
 [build]

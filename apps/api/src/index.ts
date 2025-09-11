@@ -19,16 +19,16 @@ app.use("*", secureHeaders());
 // CORS configuration with environment-aware origins
 const getAllowedOrigins = () => {
   const defaultOrigins = [
-    "http://localhost:3000", 
+    "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:8080"  // Add localhost:8080 for debugging
   ];
-  
+
   if (process.env.ALLOWED_ORIGINS) {
     const envOrigins = process.env.ALLOWED_ORIGINS.split(",").map(origin => origin.trim());
     return [...envOrigins, ...defaultOrigins];
   }
-  
+
   // Production defaults if no env var is set
   if (process.env.NODE_ENV === "production") {
     return [
@@ -37,7 +37,7 @@ const getAllowedOrigins = () => {
       ...defaultOrigins
     ];
   }
-  
+
   return defaultOrigins;
 };
 
@@ -47,19 +47,19 @@ app.use("*", cors({
   origin: (origin, c) => {
     // For debugging - log all origin requests
     logger.info({ origin, allowedOrigins }, 'CORS origin check');
-    
+
     // Allow requests with no origin (like Postman, curl)
     if (!origin) return origin;
-    
+
     // Allow if in allowed origins
     if (allowedOrigins.includes(origin)) return origin;
-    
+
     // Temporary: Allow fly.dev subdomains for debugging
     if (origin.endsWith('.fly.dev')) {
       logger.warn({ origin }, 'CORS: Allowing .fly.dev domain temporarily');
       return origin;
     }
-    
+
     logger.error({ origin, allowedOrigins }, 'CORS: Origin blocked');
     return null;
   },
@@ -82,24 +82,24 @@ app.use("*", async (c, next) => {
   const origin = c.req.header("Origin");
   if (origin) {
     const isAllowed = allowedOrigins.includes(origin);
-    logger.info({ 
-      origin, 
-      isAllowed, 
+    logger.info({
+      origin,
+      isAllowed,
       allowedOrigins,
       method: c.req.method,
       path: c.req.path
     }, 'CORS check');
   }
-  
+
   await next();
 });
 
 app.use("*", async (c, next) => {
   const requestId = nanoid();
   c.set("requestId", requestId);
-  
+
   const start = Date.now();
-  
+
   logger.info({
     method: c.req.method,
     url: c.req.url,
@@ -107,11 +107,11 @@ app.use("*", async (c, next) => {
     userAgent: c.req.header("User-Agent"),
     ip: c.req.header("x-forwarded-for") || "unknown"
   }, 'Request started');
-  
+
   await next();
-  
+
   const duration = Date.now() - start;
-  
+
   logger.info({
     method: c.req.method,
     url: c.req.url,
@@ -130,13 +130,13 @@ app.doc("/openapi.json", {
     description: "API documentation for AI Tools services",
   },
   servers: [
-    { 
-      url: "https://wd-ai-tool-api.fly.dev", 
-      description: "Production (Fly.io)" 
+    {
+      url: "https://wd-ai-lib.fly.dev/",
+      description: "Production (Fly.io)"
     },
-    { 
-      url: `http://localhost:${process.env.PORT || "8080"}`, 
-      description: "Local Development" 
+    {
+      url: `http://localhost:${process.env.PORT || "8080"}`,
+      description: "Local Development"
     }
   ]
 });
@@ -179,7 +179,7 @@ app.onError((error, c) => {
     url: c.req.url,
     method: c.req.method
   }, 'Unhandled error');
-  
+
   return c.json({
     error: "Internal server error",
     requestId
