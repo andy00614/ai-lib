@@ -1,115 +1,173 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { 
+  Mic, 
+  BookOpen, 
+  MessageSquare, 
+  Search, 
+  Volume2, 
+  FileText,
+  ArrowRight
+} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+const tools = [
+  {
+    title: "语音克隆",
+    description: "只需10秒录音，即可训练出专属的AI语音模型，让AI学会您的声音",
+    icon: Mic,
+    href: "/voice-clone",
+    color: "bg-red-500",
+    available: true,
+  },
+  {
+    title: "知识点生成",
+    description: "输入知识点，自动生成结构清晰的大纲和相关练习题",
+    icon: BookOpen,
+    href: "/knowledge",
+    color: "bg-blue-500",
+    available: false,
+  },
+  {
+    title: "多模型问答",
+    description: "一次性调用多个AI模型，横向对比不同模型的回答效果",
+    icon: MessageSquare,
+    href: "/chat",
+    color: "bg-green-500",
+    available: false,
+  },
+  {
+    title: "RAG 知识检索",
+    description: "上传文档，构建专属知识库，智能问答系统",
+    icon: Search,
+    href: "/search",
+    color: "bg-purple-500",
+    available: false,
+  },
+  {
+    title: "语音转文本",
+    description: "实时语音转文字，支持多语言识别",
+    icon: FileText,
+    href: "/speech-to-text",
+    color: "bg-yellow-500",
+    available: false,
+  },
+  {
+    title: "文本转语音",
+    description: "将文字转换为自然流畅的语音，支持多种音色",
+    icon: Volume2,
+    href: "/text-to-speech",
+    color: "bg-indigo-500",
+    available: false,
+  },
+];
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+};
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-5xl font-bold text-gray-900 mb-6">
-          AI 工具集
-        </h1>
-        <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-          打造智能化的 AI 工具集，帮助您在学习、创作、交流和语音交互等场景中更高效、更好用。
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-          {/* 语音克隆卡片 */}
-          <Link href="/voice-clone">
-            <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-8 cursor-pointer border border-gray-100 hover:border-blue-200">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                语音克隆
-              </h3>
-              <p className="text-gray-600 text-sm">
-                只需10秒录音，即可训练出专属的AI语音模型，让AI学会您的声音
-              </p>
-            </div>
-          </Link>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-6 py-12 lg:px-8">
+        {/* Header */}
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-6xl mb-6">
+            AI 工具集
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-8">
+            打造智能化的 AI 工具集，帮助您在学习、创作、交流和语音交互等场景中更高效、更好用。
+          </p>
+        </motion.div>
 
-          {/* 知识生成卡片 */}
-          <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-8 cursor-pointer border border-gray-100 hover:border-blue-200 opacity-60">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              知识点生成
-            </h3>
-            <p className="text-gray-600 text-sm">
-              输入知识点，自动生成结构清晰的大纲和相关练习题（即将推出）
-            </p>
-          </div>
+        {/* Tools Grid */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16"
+          variants={container}
+          initial="hidden"
+          animate="show"
+        >
+          {tools.map((tool) => {
+            const Icon = tool.icon;
+            return (
+              <motion.div key={tool.title} variants={item}>
+                {tool.available ? (
+                  <Link href={tool.href}>
+                    <Card className="h-full hover:shadow-lg transition-all duration-200 border-border hover:border-border/60 group cursor-pointer">
+                      <CardHeader>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="p-3 rounded-lg border border-border">
+                            <Icon className="h-6 w-6 text-foreground" />
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        </div>
+                        <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors">
+                          {tool.title}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <CardDescription className="text-sm leading-relaxed">
+                          {tool.description}
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ) : (
+                  <Card className="h-full opacity-60 border-border cursor-not-allowed">
+                    <CardHeader>
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 rounded-lg border border-border">
+                          <Icon className="h-6 w-6 text-foreground opacity-50" />
+                        </div>
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                          即将推出
+                        </span>
+                      </div>
+                      <CardTitle className="text-xl font-semibold text-muted-foreground">
+                        {tool.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="text-sm leading-relaxed">
+                        {tool.description}
+                      </CardDescription>
+                    </CardContent>
+                  </Card>
+                )}
+              </motion.div>
+            );
+          })}
+        </motion.div>
 
-          {/* 多模型问答卡片 */}
-          <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-8 cursor-pointer border border-gray-100 hover:border-blue-200 opacity-60">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              多模型问答
-            </h3>
-            <p className="text-gray-600 text-sm">
-              一次性调用多个AI模型，横向对比不同模型的回答效果（即将推出）
-            </p>
-          </div>
-
-          {/* RAG 知识检索卡片 */}
-          <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-8 cursor-pointer border border-gray-100 hover:border-blue-200 opacity-60">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              RAG 知识检索
-            </h3>
-            <p className="text-gray-600 text-sm">
-              上传文档，构建专属知识库，智能问答系统（即将推出）
-            </p>
-          </div>
-
-          {/* 语音转文本卡片 */}
-          <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-8 cursor-pointer border border-gray-100 hover:border-blue-200 opacity-60">
-            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1a1 1 0 011 1v8a1 1 0 01-1 1H8a1 1 0 01-1-1V2a1 1 0 011-1v3z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              语音转文本
-            </h3>
-            <p className="text-gray-600 text-sm">
-              实时语音转文字，支持多语言识别（即将推出）
-            </p>
-          </div>
-
-          {/* 文本转语音卡片 */}
-          <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-8 cursor-pointer border border-gray-100 hover:border-blue-200 opacity-60">
-            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
-              文本转语音
-            </h3>
-            <p className="text-gray-600 text-sm">
-              将文字转换为自然流畅的语音，支持多种音色（即将推出）
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-16">
-          <p className="text-gray-500 text-sm">
+        {/* Footer */}
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+        >
+          <p className="text-sm text-muted-foreground">
             基于 ai-sdk 构建，提供统一的AI接口和流式体验
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
